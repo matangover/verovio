@@ -400,6 +400,7 @@
 		8F7DD0551EAF3682001B072A /* fb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F7DD0531EAF3682001B072A /* fb.cpp */; };
 		8F7DD0561EAF3682001B072A /* fb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F7DD0531EAF3682001B072A /* fb.cpp */; };
 		8F7DD0571EAF3682001B072A /* fb.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8F7DD0531EAF3682001B072A /* fb.cpp */; };
+		907B3DCF1F80029D00798D03 /* gliss.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 907B3DCE1F80029D00798D03 /* gliss.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -699,6 +700,8 @@
 		8F59293218854BF800FE51AD /* vrv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vrv.h; path = include/vrv/vrv.h; sourceTree = "<group>"; };
 		8F59293318854BF800FE51AD /* vrvdef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vrvdef.h; path = include/vrv/vrvdef.h; sourceTree = "<group>"; };
 		8F7DD0531EAF3682001B072A /* fb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fb.cpp; path = src/fb.cpp; sourceTree = "<group>"; };
+		907B3DCE1F80029D00798D03 /* gliss.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gliss.cpp; path = src/gliss.cpp; sourceTree = "<group>"; };
+		907B3DD01F8002B000798D03 /* gliss.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gliss.h; path = include/vrv/gliss.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -911,6 +914,8 @@
 		4DF28A011A754DAA00BA9F7D /* controlelements */ = {
 			isa = PBXGroup;
 			children = (
+				907B3DD01F8002B000798D03 /* gliss.h */,
+				907B3DCE1F80029D00798D03 /* gliss.cpp */,
 				4D95D4F51D71866200B2B856 /* controlelement.cpp */,
 				4DF28A021A754DE400BA9F7D /* controlelement.h */,
 				4DB351101C8040B1002DD057 /* anchoredtext.cpp */,
@@ -1485,6 +1490,7 @@
 				8F086EEB188539540037FD8E /* toolkit.cpp in Sources */,
 				40D0D5E21E3BD7FE00E6BF5C /* turn.cpp in Sources */,
 				4D1BE76D1C688F5A0086DC0E /* MidiEvent.cpp in Sources */,
+				907B3DCF1F80029D00798D03 /* gliss.cpp in Sources */,
 				8F086EEC188539540037FD8E /* io.cpp in Sources */,
 				4D796B5E1D78641900A15238 /* harm.cpp in Sources */,
 				4DB3072F1AC9ED2500EE0982 /* space.cpp in Sources */,

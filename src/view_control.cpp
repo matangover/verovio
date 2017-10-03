@@ -28,6 +28,7 @@
 #include "fb.h"
 #include "fermata.h"
 #include "functorparams.h"
+#include "gliss.h"
 #include "hairpin.h"
 #include "harm.h"
 #include "layer.h"
@@ -204,7 +205,6 @@ void View::DrawTimeSpanningElement(DeviceContext *dc, Object *element, System *s
     std::vector<Staff *>::iterator staffIter;
     std::vector<Staff *> staffList = interface->GetTstampStaves(measure);
     for (staffIter = staffList.begin(); staffIter != staffList.end(); staffIter++) {
-
         // TimeSpanning element are not necessary floating elements (e.g., syl) - we have a bounding box only for them
         if (element->IsControlElement())
             system->SetCurrentFloatingPositioner(
@@ -214,6 +214,10 @@ void View::DrawTimeSpanningElement(DeviceContext *dc, Object *element, System *s
             // cast to Harprin check in DrawHairpin
             DrawHairpin(dc, dynamic_cast<Hairpin *>(element), x1, x2, *staffIter, spanningType, graphic);
         }
+		else if (element->Is(GLISS)) {
+			// cast to Gliss check in DrawGliss
+			DrawGliss(dc, dynamic_cast<Gliss *>(element), x1, x2, *staffIter, spanningType, graphic);
+		}
         else if (element->Is(OCTAVE)) {
             // cast to Slur check in DrawOctave
             DrawOctave(dc, dynamic_cast<Octave *>(element), x1, x2, *staffIter, spanningType, graphic);
@@ -404,6 +408,87 @@ void View::DrawHairpin(
     else
         dc->EndGraphic(hairpin, this);
 }
+	
+void View::DrawGliss(
+					   DeviceContext *dc, Gliss *gliss, int x1, int x2, Staff *staff, char spanningType, Object *graphic)
+{
+	assert(dc);
+	assert(gliss);
+	assert(staff);
+	LayerElement *start = NULL;
+	LayerElement *end = NULL;
+	
+	/************** parent layers **************/
+	
+	start = dynamic_cast<LayerElement *>(gliss->GetStart());
+	end = dynamic_cast<LayerElement *>(gliss->GetEnd());
+	
+	if (!start || !end) {
+		// no start and end, obviously nothing to do...
+		return;
+	}
+	
+	/************** start / end opening **************/
+	
+	// Only for two staves for now. Also, doesn't support spanning pages.
+	System* startSystem = dynamic_cast<System *>(start->GetFirstParent(SYSTEM));
+	int totalHorizontalDistance = startSystem->GetContentRight() - start->GetDrawingX() + end->GetDrawingX();
+	std::cout << "Distance: " << totalHorizontalDistance << std::endl;
+	// the normal case
+	int margin = 100;
+	float endX = end->GetContentLeft() - margin;
+	float endY = end->GetDrawingY();
+	float startX = start->GetContentRight() + margin;
+	float startY = start->GetDrawingY();
+	if (spanningType == SPANNING_START_END) {
+		std::cout << "Normal case" << std::endl;
+	}
+	// In this case, we are drawing the first half a a cresc. Reduce the openning end
+	else if (spanningType == SPANNING_START) {
+		float yDistance = end->GetDrawingYRel() - start->GetDrawingYRel();
+		// nothing to adjust
+		float lineAngle = atan(yDistance / totalHorizontalDistance);
+		//lineAngle = 0;
+		endY = tan(lineAngle) * (startSystem->GetContentRight() - start->GetDrawingX()) + start->GetDrawingY();
+		endX = x2 - margin;
+		//startY =
+		//endX = start->GetDrawingX() + totalHorizontalDistance;
+		std::cout << "Spanning start " << std::endl;
+	}
+	// Now this is the case we are drawing the end of a cresc. Increase the openning start
+	else if (spanningType == SPANNING_END) {
+		float yDistance = end->GetDrawingYRel() - start->GetDrawingYRel();
+		// nothing to adjust
+		float lineAngle = atan(yDistance / totalHorizontalDistance);
+		//lineAngle = 0;
+		endY = end->GetDrawingY();
+		//endX = x2 - margin * 2;
+		startX = x1;
+		startY = end->GetDrawingY() - tan(lineAngle) * (end->GetDrawingX());
+		std::cout << "Spanning end" << std::endl;
+	}
+	// Finally, cres accross the system, increase the start and reduce the end
+	else {
+		std::cout << "Shouldn't be here" << std::endl;
+	}
+	
+	/************** draw it **************/
+	
+	if (graphic)
+		dc->ResumeGraphic(graphic, graphic->GetUuid());
+	else
+		dc->StartGraphic(gliss, "spanning-gliss", "");
+
+	dc->SetPen(m_currentColour, 25, AxSOLID, 0);
+	dc->DrawLine(ToDeviceContextX(startX), ToDeviceContextY(startY), ToDeviceContextX(endX), ToDeviceContextY(endY));
+	dc->ResetPen();
+	
+	if (graphic)
+		dc->EndResumedGraphic(graphic, this);
+	else
+		dc->EndGraphic(gliss, this);
+}
+
 
 void View::DrawOctave(
     DeviceContext *dc, Octave *octave, int x1, int x2, Staff *staff, char spanningType, Object *graphic)

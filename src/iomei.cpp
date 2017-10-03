@@ -32,6 +32,7 @@
 #include "fb.h"
 #include "fermata.h"
 #include "functorparams.h"
+#include "gliss.h"
 #include "hairpin.h"
 #include "harm.h"
 #include "keysig.h"
@@ -257,6 +258,10 @@ bool MeiOutput::WriteObject(Object *object)
         m_currentNode = m_currentNode.append_child("fermata");
         WriteMeiFermata(m_currentNode, dynamic_cast<Fermata *>(object));
     }
+	else if (object->Is(GLISS)) {
+		m_currentNode = m_currentNode.append_child("gliss");
+		WriteMeiGliss(m_currentNode, dynamic_cast<Gliss *>(object));
+	}
     else if (object->Is(HAIRPIN)) {
         m_currentNode = m_currentNode.append_child("hairpin");
         WriteMeiHairpin(m_currentNode, dynamic_cast<Hairpin *>(object));
@@ -827,6 +832,17 @@ void MeiOutput::WriteMeiFermata(pugi::xml_node currentNode, Fermata *fermata)
     fermata->WriteColor(currentNode);
     fermata->WriteFermataVis(currentNode);
     fermata->WritePlacement(currentNode);
+};
+
+void MeiOutput::WriteMeiGliss(pugi::xml_node currentNode, Gliss *gliss)
+{
+	assert(gliss);
+	
+	WriteControlElement(currentNode, gliss);
+	WriteTimeSpanningInterface(currentNode, gliss);
+	gliss->WriteColor(currentNode);
+	//hairpin->WriteHairpinLog(currentNode);
+	//hairpin->WritePlacement(currentNode);
 };
 
 void MeiOutput::WriteMeiHairpin(pugi::xml_node currentNode, Hairpin *hairpin)
@@ -2382,6 +2398,9 @@ bool MeiInput::ReadMeiMeasureChildren(Object *parent, pugi::xml_node parentNode)
         else if (std::string(current.name()) == "fermata") {
             success = ReadMeiFermata(parent, current);
         }
+		else if (std::string(current.name()) == "gliss") {
+			success = ReadMeiGliss(parent, current);
+		}
         else if (std::string(current.name()) == "hairpin") {
             success = ReadMeiHairpin(parent, current);
         }
@@ -2500,19 +2519,34 @@ bool MeiInput::ReadMeiFermata(Object *parent, pugi::xml_node fermata)
     return true;
 }
 
-bool MeiInput::ReadMeiHairpin(Object *parent, pugi::xml_node hairpin)
+bool MeiInput::ReadMeiGliss(Object *parent, pugi::xml_node gliss)
 {
-    Hairpin *vrvHairpin = new Hairpin();
-    ReadControlElement(hairpin, vrvHairpin);
+    Gliss *vrvGliss = new Gliss();
+    ReadControlElement(gliss, vrvGliss);
 
-    ReadTimeSpanningInterface(hairpin, vrvHairpin);
-    vrvHairpin->ReadColor(hairpin);
-    vrvHairpin->ReadHairpinLog(hairpin);
-    vrvHairpin->ReadPlacement(hairpin);
+    ReadTimeSpanningInterface(gliss, vrvGliss);
+    vrvGliss->ReadColor(gliss);
+    //vrvGliss->ReadHairpinLog(hairpin);
+    //vrvHairpin->ReadPlacement(hairpin);
 
-    parent->AddChild(vrvHairpin);
+    parent->AddChild(vrvGliss);
     return true;
 }
+	
+bool MeiInput::ReadMeiHairpin(Object *parent, pugi::xml_node hairpin)
+{
+	Hairpin *vrvHairpin = new Hairpin();
+	ReadControlElement(hairpin, vrvHairpin);
+	
+	ReadTimeSpanningInterface(hairpin, vrvHairpin);
+	vrvHairpin->ReadColor(hairpin);
+	vrvHairpin->ReadHairpinLog(hairpin);
+	vrvHairpin->ReadPlacement(hairpin);
+	
+	parent->AddChild(vrvHairpin);
+	return true;
+}
+
 
 bool MeiInput::ReadMeiHarm(Object *parent, pugi::xml_node harm)
 {

@@ -106,6 +106,7 @@ enum ClassId {
     DIR,
     DYNAM,
     FERMATA,
+	GLISS,
     HAIRPIN,
     HARM,
     MORDENT,

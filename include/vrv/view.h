@@ -29,6 +29,7 @@ class Ending;
 class Fb;
 class F;
 class Fermata;
+class Gliss;
 class Hairpin;
 class Harm;
 class Layer;
@@ -333,6 +334,8 @@ protected:
     void DrawDir(DeviceContext *dc, Dir *dir, Measure *measure, System *system);
     void DrawDynam(DeviceContext *dc, Dynam *dynam, Measure *measure, System *system);
     void DrawFermata(DeviceContext *dc, Fermata *fermata, Measure *measure, System *system);
+	void DrawGliss(
+		DeviceContext *dc, Gliss *gliss, int x1, int x2, Staff *staff, char spanningType, Object *graphic = NULL);
     void DrawHairpin(
         DeviceContext *dc, Hairpin *hairpin, int x1, int x2, Staff *staff, char spanningType, Object *graphic = NULL);
     void DrawHarm(DeviceContext *dc, Harm *harm, Measure *measure, System *system);

@@ -54,6 +54,7 @@ class Fb;
 class Fermata;
 class FloatingElement;
 class FTrem;
+class Gliss;
 class Hairpin;
 class Harm;
 class Layer;
@@ -225,6 +226,7 @@ private:
     void WriteMeiDir(pugi::xml_node currentNode, Dir *dir);
     void WriteMeiDynam(pugi::xml_node currentNode, Dynam *dynam);
     void WriteMeiFermata(pugi::xml_node currentNode, Fermata *fermata);
+	void WriteMeiGliss(pugi::xml_node currentNode, Gliss *gliss);
     void WriteMeiHairpin(pugi::xml_node currentNode, Hairpin *hairpin);
     void WriteMeiHarm(pugi::xml_node currentNode, Harm *harm);
     void WriteMeiMordent(pugi::xml_node currentNode, Mordent *mordent);
@@ -456,7 +458,8 @@ private:
     bool ReadMeiDir(Object *parent, pugi::xml_node dir);
     bool ReadMeiDynam(Object *parent, pugi::xml_node dynam);
     bool ReadMeiFermata(Object *parent, pugi::xml_node fermata);
-    bool ReadMeiHairpin(Object *parent, pugi::xml_node hairpin);
+    bool ReadMeiGliss(Object *parent, pugi::xml_node gliss);
+	bool ReadMeiHairpin(Object *parent, pugi::xml_node hairpin);
     bool ReadMeiHarm(Object *parent, pugi::xml_node harm);
     bool ReadMeiMordent(Object *parent, pugi::xml_node mordent);
     bool ReadMeiOctave(Object *parent, pugi::xml_node octave);
