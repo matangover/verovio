@@ -415,65 +415,43 @@ void View::DrawGliss(
 	assert(dc);
 	assert(gliss);
 	assert(staff);
-	LayerElement *start = NULL;
-	LayerElement *end = NULL;
-	
-	/************** parent layers **************/
-	
-	start = dynamic_cast<LayerElement *>(gliss->GetStart());
-	end = dynamic_cast<LayerElement *>(gliss->GetEnd());
-	
+
+	LayerElement *start = dynamic_cast<LayerElement *>(gliss->GetStart());
+	LayerElement *end = dynamic_cast<LayerElement *>(gliss->GetEnd());
 	if (!start || !end) {
-		// no start and end, obviously nothing to do...
 		return;
 	}
 	
-	/************** start / end opening **************/
-	
-	// Only for two staves for now. Also, doesn't support spanning pages.
+	// Calculate the glissando line start and end points.
+	// Supports only a glissando between notes on the same staff or between
+	// two consecutive staves. Glissandos spanning multiple pages are not supported.
 	System* startSystem = dynamic_cast<System *>(start->GetFirstParent(SYSTEM));
 	int totalHorizontalDistance = startSystem->GetContentRight() - start->GetDrawingX() + end->GetDrawingX();
-	std::cout << "Distance: " << totalHorizontalDistance << std::endl;
-	// the normal case
 	int margin = 100;
 	float endX = end->GetContentLeft() - margin;
 	float endY = end->GetDrawingY();
 	float startX = start->GetContentRight() + margin;
 	float startY = start->GetDrawingY();
 	if (spanningType == SPANNING_START_END) {
-		std::cout << "Normal case" << std::endl;
 	}
-	// In this case, we are drawing the first half a a cresc. Reduce the openning end
 	else if (spanningType == SPANNING_START) {
 		float yDistance = end->GetDrawingYRel() - start->GetDrawingYRel();
-		// nothing to adjust
 		float lineAngle = atan(yDistance / totalHorizontalDistance);
-		//lineAngle = 0;
 		endY = tan(lineAngle) * (startSystem->GetContentRight() - start->GetDrawingX()) + start->GetDrawingY();
 		endX = x2 - margin;
-		//startY =
-		//endX = start->GetDrawingX() + totalHorizontalDistance;
-		std::cout << "Spanning start " << std::endl;
 	}
-	// Now this is the case we are drawing the end of a cresc. Increase the openning start
 	else if (spanningType == SPANNING_END) {
 		float yDistance = end->GetDrawingYRel() - start->GetDrawingYRel();
-		// nothing to adjust
 		float lineAngle = atan(yDistance / totalHorizontalDistance);
-		//lineAngle = 0;
 		endY = end->GetDrawingY();
-		//endX = x2 - margin * 2;
 		startX = x1;
 		startY = end->GetDrawingY() - tan(lineAngle) * (end->GetDrawingX());
-		std::cout << "Spanning end" << std::endl;
 	}
-	// Finally, cres accross the system, increase the start and reduce the end
 	else {
-		std::cout << "Shouldn't be here" << std::endl;
+		// TODO: support glissando spanning more than two staves.
 	}
 	
-	/************** draw it **************/
-	
+	// Draw a line for the glissando.
 	if (graphic)
 		dc->ResumeGraphic(graphic, graphic->GetUuid());
 	else
