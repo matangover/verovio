@@ -37,6 +37,7 @@
 #include "mordent.h"
 #include "note.h"
 #include "octave.h"
+#include "page.h"
 #include "pedal.h"
 #include "slur.h"
 #include "smufl.h"
@@ -422,33 +423,54 @@ void View::DrawGliss(
 		return;
 	}
 	
+	Page* startPage = dynamic_cast<Page *>(start->GetFirstParent(PAGE));
+	Page* endPage = dynamic_cast<Page *>(end->GetFirstParent(PAGE));
+	if (startPage != endPage) {
+		// Start and end note are not on the same page. This is unsupported for now.
+		return;
+	}
+	
 	// Calculate the glissando line start and end points.
+	// Test glissando between staves.
 	// Supports only a glissando between notes on the same staff or between
 	// two consecutive staves. Glissandos spanning multiple pages are not supported.
 	System* startSystem = dynamic_cast<System *>(start->GetFirstParent(SYSTEM));
-	int totalHorizontalDistance = startSystem->GetContentRight() - start->GetDrawingX() + end->GetDrawingX();
+	System* endSystem = dynamic_cast<System *>(end->GetFirstParent(SYSTEM));
+	int totalHorizontalDistance = startSystem->GetContentRight() - start->GetDrawingX();
+	int horizontalDistanceBeforeCurrentSystem = 0;
+	System* currentSystem = dynamic_cast<System *>(staff->GetFirstParent(SYSTEM));
+	for (int i = startSystem->GetSystemIdx() + 1; i < endSystem->GetSystemIdx(); i++) {
+		System* nextSystem = dynamic_cast<System *>(startPage->GetChild(i));
+		if (nextSystem == currentSystem) {
+			horizontalDistanceBeforeCurrentSystem = totalHorizontalDistance;
+		}
+		totalHorizontalDistance += currentSystem->GetContentRight() - currentSystem->GetContentLeft();
+	}
+	totalHorizontalDistance += end->GetDrawingX();
 	int margin = 100;
 	float endX = end->GetContentLeft() - margin;
 	float endY = end->GetDrawingY();
 	float startX = start->GetContentRight() + margin;
 	float startY = start->GetDrawingY();
+	// TODO: is GetDrawingYRel correct? Is it relative to the layer? It should be relative to the staff.
+	float yDistance = end->GetDrawingYRel() - start->GetDrawingYRel();
+	float lineAngle = atan(yDistance / totalHorizontalDistance);
 	if (spanningType == SPANNING_START_END) {
 	}
 	else if (spanningType == SPANNING_START) {
-		float yDistance = end->GetDrawingYRel() - start->GetDrawingYRel();
-		float lineAngle = atan(yDistance / totalHorizontalDistance);
 		endY = tan(lineAngle) * (startSystem->GetContentRight() - start->GetDrawingX()) + start->GetDrawingY();
 		endX = x2 - margin;
 	}
 	else if (spanningType == SPANNING_END) {
-		float yDistance = end->GetDrawingYRel() - start->GetDrawingYRel();
-		float lineAngle = atan(yDistance / totalHorizontalDistance);
 		endY = end->GetDrawingY();
 		startX = x1;
 		startY = end->GetDrawingY() - tan(lineAngle) * (end->GetDrawingX());
 	}
 	else {
-		// TODO: support glissando spanning more than two staves.
+		startX = x1;
+		endX = x2 - margin;
+		startY = start->GetDrawingYRel() + staff->GetDrawingY() + tan(lineAngle) * horizontalDistanceBeforeCurrentSystem;
+		endY = start->GetDrawingYRel() + staff->GetDrawingY() + tan(lineAngle) * (horizontalDistanceBeforeCurrentSystem + x2 - x1);
 	}
 	
 	// Draw a line for the glissando.
